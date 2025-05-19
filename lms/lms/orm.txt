@@ -1,0 +1,40 @@
+CRUD with ORM -- OBJECT RELATIONAL MAPPING
+
+--- insert a Record
+
+Courses.objects.create()
+
+
+create
+
+Books.objects.create(tilte='Goat',author='benyamin'
+                      genre = 'Novel',price=150,image = 'photo.jpg')
+
+
+Course.object.create(title='Mastery in python',description= 'Python advanced level courses')
+
+
+
+
+----- orm querries -----
+
+orm query for fetch all record --- Books.objects.all()
+
+orm query for fetch record with id=5 --- Books.objects.get(id=5)
+
+orm query for fetch all beginner level courses --- Books.objects.filter(level="Beginner")
+
+orm query for fetch all courses with price 35000 ---- Books.objects.filter(price=35000)
+
+orm query for fetch records with price greater than or equal to 50000 ---- Books.objects.filter(price__lte=50000)
+
+orm query for fetch all reccords excluding level=beginner ---- Course.objects.filter().exclude(level="Beginner")
+
+orm query for fetch recrds with price=350 and 
+
+orm query to fetch all records except beginner level
+
+courses --- search query
+
+filter beginner level courses and intermediate courses 
+
