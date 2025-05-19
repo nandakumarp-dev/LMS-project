@@ -27,6 +27,8 @@ staticfiles/
 .env
 .env.*
 
+env/
+
 # VSCode and IDE folders
 .vscode/
 .idea/
