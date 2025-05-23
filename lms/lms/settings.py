@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'course',
     'instructors',
     'authentication',
+    'students'
 ]
 
 MIDDLEWARE = [
@@ -135,3 +136,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = 'media'
 
 MEDIA_URL = '/media/'
+
+
+LOGIN_URL = 'login' 
