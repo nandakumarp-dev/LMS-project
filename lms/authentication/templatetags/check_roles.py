@@ -3,16 +3,17 @@ from django import template
 register = template.Library()
 
 @register.simple_tag
-def user_role_checking(request,roles):
+def convert_uppercase(text):
 
-    roles = roles.split(',')
+    return text.upper()
+
+@register.simple_tag
+def user_role_checking(request , roles):
+
+    role = roles.split(',')
 
     if request.user.is_authenticated and request.user.role in roles :
 
         return True
     
-    else:
-
-        return False
-
-
+    return False

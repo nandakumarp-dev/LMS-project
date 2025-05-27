@@ -1,10 +1,10 @@
-from django.shortcuts import render, redirect
-
-from . models import Courses, CategoryChoices , LevelChoices
+from django.shortcuts import render ,redirect
 
 from django.views import View
 
-from . forms import CourseCreateForm
+from .models import Course , Categorychoice , Levelchoice
+
+from .forms import CourseCreateForm
 
 from instructors.models import Instructors
 
@@ -12,7 +12,7 @@ from django.db.models import Q
 
 from django.contrib.auth.decorators import login_required
 
-from django.utils.decorators import method_decorator
+from django.utils.decorators import method_decorator 
 
 from authentication.permissions import permission_roles
 
@@ -20,237 +20,202 @@ from authentication.permissions import permission_roles
 
 class CoursesListView(View):
 
-    def get(self, request, *args , **kwargs):
+    def get(self, request,*args, **kwargs):
 
         query = request.GET.get('query')
-        print(query)
-
-        courses = Courses.objects.all()
+        
+        course = Course.objects.all()
 
         if query:
 
-                courses = Courses.objects.filter(Q(title__icontains = query)|
-                                                Q(description__icontains = query)|
-                                                Q(instructor__name__icontains =query)| # since instructor is a forign key we have to specify the name of instructor
-                                                Q(category__icontains = query)|
-                                                Q(type__icontains = query)|
-                                                Q(level__icontains =query)|
-                                                Q(fees__icontains = query))
+            # Filter the courses based on the search query
+            course = Course.objects.filter(Q(title__icontains=query)| 
+                                           Q(description__icontains=query)|
+                                           Q(instructor__name__icontains=query)|
+                                           Q(category__icontains=query)|
+                                           Q(type__icontains=query)|
+                                           Q(level__icontains=query)|
+                                           Q(fee__icontains=query))
 
-        
+        # Fetch all the courses from the database
 
-        print(courses)
 
-        data = {
-             'query' : query,
-            'courses': courses,
-            'page' : 'courses-page'
-        }
-        return render(request, 'courses/courses-list.html', context= data)
+        data ={'courses': course, 'page':'course-page', 'query': query}
+
+        return render(request, 'courses/courses_list.html',context=data)
+
     
-
 class HomeView(View):
 
-    def get(self, request , *args ,**kwargs):
+    def get(self, request):
 
-        data = {
-            'page': 'home-page'
-        } 
-        
+        data ={'page':'home-page'}
 
-        return render(request, 'courses/home.html', context=data)
-#@method_decorator(login_required(login_url='login'),name='dispatch')
+        return render(request, 'courses/home.html',context=data)
+
+# @login_required(login_url='login')  
+
+# @method_decorator(login_required(login_url='login'), name='dispatch')    #--- to access the instructor page you have to login first
 
 @method_decorator(permission_roles(roles=['Instructor']), name='dispatch')
-class InstructorCourseListView(View):
+class InstructorCoursesView(View):
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request,*args, **kwargs):
+
+        instructor = Instructors.objects.get(profile= request.user)
+        
+        courses = Course.objects.filter(instructor=instructor)
 
         query = request.GET.get('query')
 
-        print(query)
+        if query:
 
-        instructor = Instructors.objects.get(id = 1)
+            # Filter the courses based on the search query
+            courses= Course.objects.filter(Q(title__icontains=query)| 
+                                           Q(description__icontains=query)|
+                                           Q(instructor__name__icontains=query)|
+                                           Q(category__icontains=query)|
+                                           Q(type__icontains=query)|
+                                           Q(level__icontains=query)|
+                                           Q(fee__icontains=query))
 
-        courses = Courses.objects.filter(instructor =instructor)
+        data ={'page':'instructor-page','courses': courses, 'query': query}
 
-        if query :
-             
-             courses = Courses.objects.filter(Q(instructor=instructor)&(Q(title__icontains = query)|
-                                                Q(description__icontains = query)|
-                                                Q(instructor__name__icontains =query)| # since instructor is a forign key we have to specify the name of instructor
-                                                Q(category__icontains = query)|
-                                                Q(type__icontains = query)|
-                                                Q(level__icontains =query)|
-                                                Q(fees__icontains = query)))
-        print(courses)
-
-        data = { 
-             'query' : query,
-            'page': 'instructor-courses-page',
-            'courses' : courses}        
-        
-        return render(request, 'courses/instructor-courses-list.html', context=data)
+        return render(request, 'courses/instructor-courses-list.html',context=data)
     
-# @method_decorator(login_required(login_required='login'),name='dispatch')
+    
 
-@method_decorator(permission_roles(roles=['Instructor']), name='dispatch')
-class InatructorCourseUpdateView(View):
-
-    def get(self, request , *args, **kwargs):
-
-        uuid = kwargs.get('uuid')
-
-        course = Courses.objects.get(uuid=uuid)
-
-        form = CourseCreateForm(instance=course)
-
-        data = {
-            'form' : form ,
-
-        }
-
-        return render(request,'courses/instructor-course-update.html', context=data)
-
-    def post(self, request, *args, **kwargs):
-
-            uuid = kwargs.get('uuid')
-
-            course = Courses.objects.get(uuid = uuid)
-
-            form = CourseCreateForm(request.POST, request.FILES, instance=course)
-
-            if form.is_valid():
-
-                form.save()
-
-                return redirect('instructor-courses-list')
-            
-            data = { 'form' : form }
-
-            return render( request, 'courses/instructor-course-update.html', context=data)
-# @method_decorator(login_required(login_required='login'),name='dispatch')
-
-@method_decorator(permission_roles(roles=['Instructor']), name='dispatch')
-class InstructorCoursesDetailView(View):
-
-    def get(self, request , *args , **kwargs):
-
-        uuid = kwargs.get('uuid')
-
-        course = Courses.objects.get(uuid=uuid)
-
-        data = {
-            'course' : course
-        }
-
-        return render(request,'courses/instructor-course-detail.html', context= data)
-
-
+# normal way    
 # class CourseCreateView(View):
 
-#     def get(self , request , *args , **kwargs):
-            
-#         data ={
-#             'categories': CategoryChoices,
-#             'levels': LevelChoices,
-#                 }
+#     def get(self, request):
 
-#         return render (request, 'courses/create-course.html', context=data)
+#         form = Course.objects.all()
+#         data = {'form': form, }
+#         return render(request, 'courses/courses-create.html',context=data)
     
-#     def post(self, request, *args, **kwargs):
+#     def post(self, request):
 
-#             form_data = request.POST
+#         from_data = request.POST
+#         image = request.FILES.get('image')
+#         title = from_data.get('title')
+#         description = from_data.get('description')
+#         category = from_data.get('category')
+#         level = from_data.get('level')
+#         fee = from_data.get('fee')
+#         offer_fee = from_data.get('offer_fee')
+#         instructor = 'Jhone Doe'
 
-#             image = request.FILES.get('image')
-
-#             title = form_data.get('title')
-       
-#             description = form_data.get('description')
-
-#             category = form_data.get('category')
-
-#             level = form_data.get('level')
-
-#             fees = form_data.get('fees')
-
-#             offer_fee = form_data.get('offer_fee')
-
-#             instructor = 'John Doe'
-
-#             print(title, description,category,level,image,fees,offer_fee)
-
-#             course = Courses.objects.create(title=title,description=description , image=image,
-#                                    category=category,level=level, instructor=instructor,
-#                                    fees=fees, offer_fee=offer_fee)
-#             course.save()
-
-#             return redirect('instructor-courses-list')
+#         course = Course.objects.create(
+#             title = title,
+#             description = description,
+#             category = category,
+#             level = level,
+#             fee = fee,
+#             offer_fee = offer_fee,
+#             instructor = instructor,
+#             image = image
+#         )
+#         course.save()
+#         # Redirect to the instructor courses page after creating the course
 
 
-
-# with the help of Django-forms
+#         return redirect('instructor_courses')
 
 
 
+# with django form
+@method_decorator(login_required(login_url='login'), name='dispatch')
 class CourseCreateView(View):
 
-    def get(self , request , *args , **kwargs):
-            
-        # data ={
-        #     'categories': CategoryChoices,
-        #     'levels': LevelChoices,
-        #         }
+    def get(self, request):
 
         form = CourseCreateForm()
-        
-        data = {
-            'form': form
-        }
-
-        return render (request, 'courses/create-course.html', context=data)
+        data = {'form': form, }
+        return render(request, 'courses/courses-create.html',context=data)
     
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
 
         form = CourseCreateForm(request.POST, request.FILES)
 
-        instructor = Instructors.objects.get(id=1)
-
+        instructor = Instructors.objects.get(id = 1)
+        
         if form.is_valid():
-
-            # print(form.cleaned_data)
-
-            # form.cleaned_data['instructor'] = 'John Doe'
-
-            # form.save()
 
             course = form.save(commit=False)
 
-           
             course.instructor = instructor
+
             course.save()
+
+            return redirect('instructor_courses')
         
 
-            return redirect('instructor-courses-list')
-        
+        data = {'form': form, }
+        # If the form is not valid, render the form again with error messages
 
-        data = {'form': form }
         print(form.errors)
-        return render (request, 'courses/create-course.html', context=data)
+        return render(request, 'courses/courses-create.html',context={'form': form})
+#         # Redirect to the instructor courses page after creating the course
+#         return redirect('instructor_courses')
+#         return render(request, 'courses/courses-create.html',context={'form': form})\
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+class InstructorCoursesDetailView(View):
+
+    def get(self, request, *args, **kwargs):
+
+        uuid = kwargs.get('uuid')
+
+        course = Course.objects.get(uuid=uuid)
+
+        data = {'course' : course}
+
+        return render (request,'courses/instructor-courses-detail.html' ,context={'course' : course})
+
+@method_decorator(login_required(login_url='login'), name='dispatch')   
+class InstructorCoursesDeleteView(View):
+
+    def get(self, request,*args ,**kwargs):
+
+        uuid = kwargs.get('uuid')
+
+        course = Course.objects.get(uuid=uuid)
+
+        course.delete()
+
+        return redirect('instructor_courses')
+        
+@method_decorator(login_required(login_url='login'), name='dispatch')
+class InstructorCoursesUpdateView(View):
+
+    def get(self, request, *args, **kwargs):
+
+        uuid = kwargs.get('uuid')
+
+        course = Course.objects.get(uuid=uuid)
+
+        form = CourseCreateForm(instance=course)
+
+        data = {'form' : form}
+
+        return render(request,'courses/instructor-courses-update.html', context=data)
     
-# @method_decorator(login_required(login_required='login'),name='dispatch')
+    def post(self, request, *args, **kwargs):
 
-@method_decorator(permission_roles(roles=['Instructor']), name='dispatch')
-class CourseDeleteView(View):
+        uuid = kwargs.get('uuid')
 
+        course = Course.objects.get(uuid=uuid)
 
-    def get(self, request , *args, **kwargs):
+        form = CourseCreateForm(request.POST, request.FILES, instance=course)
 
-            uuid = kwargs.get('uuid')
+        if form.is_valid():
 
-            course = Courses.objects.get(uuid=uuid)
-            course.delete()
-            print(course)
+            form.save()
 
-            return redirect('instructor-courses-list')
-  
+            return redirect('instructor_courses')
+        
+        data = {'form' : form}
+        # If the form is not valid, render the form again with error messages
+
+        return render(request,'courses/instructor-courses-update.html', context=data)

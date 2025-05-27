@@ -1,15 +1,15 @@
 from django import forms
 
-from . models import Courses ,CategoryChoices,LevelChoices,TypeChoices
+from .models import Course,Categorychoice,Levelchoice,Typechoice
 
 class CourseCreateForm(forms.ModelForm):
 
     class Meta:
 
-        model = Courses
+        model = Course
 
         # fields = ['title','description','image','category','level','fee','offer_fee']     # to include specific fields in the form
-        # fields = '_all_'          # to include all fields in the form
+        # fields = '__all__'          # to include all fields in the form
         exclude = ['instructor','uuid','active_status']      # Exclude the instructors field from the form
 
         widgets = {          # widgets --- to customize the form fields
@@ -34,17 +34,17 @@ class CourseCreateForm(forms.ModelForm):
 
         }
 
-    category = forms.ChoiceField(choices=CategoryChoices.choices,widget=forms.Select(attrs={
+    category = forms.ChoiceField(choices=Categorychoice.choices,widget=forms.Select(attrs={
                                                                                             'class' : 'form-select',
                                                                                             'required' : 'required'
                                                                                             }))
         
-    level = forms.ChoiceField(choices=LevelChoices.choices,widget=forms.Select(attrs={
+    level = forms.ChoiceField(choices=Levelchoice.choices,widget=forms.Select(attrs={
                                                                                     'class' : 'form-select',
                                                                                     'required' : 'required'
                                                                                     }))
         
-    type = forms.ChoiceField(choices=TypeChoices.choices,widget=forms.Select(attrs={
+    type = forms.ChoiceField(choices=Typechoice.choices,widget=forms.Select(attrs={
                                                                                     'class' : 'form-select',
                                                                                     'required' : 'required'
                                                                                     }))
@@ -63,9 +63,9 @@ class CourseCreateForm(forms.ModelForm):
 
         return validated_data 
 
-    def _init_(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
 
-        super(CourseCreateForm,self)._init_(*args, **kwargs)
+        super(CourseCreateForm,self).__init__(*args, **kwargs)
 
         if not self.instance :
 
