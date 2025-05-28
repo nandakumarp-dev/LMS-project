@@ -8,6 +8,8 @@ from django.db import transaction
 
 from lms.utility import send_email
 
+import threading
+
 # Create your views here.
 
 class StudentRegisterView(View):
@@ -23,7 +25,7 @@ class StudentRegisterView(View):
             'student_form' : student_form
         }
 
-        return render(request,'students/student-register.html',context=data)
+        return render(request,'students/students-register.html',context=data)
     
     def post(self, request, *args , **kwrgs):
 
@@ -68,14 +70,22 @@ class StudentRegisterView(View):
                     
                     # Send email notification
                     subject = 'Successfully registered'
+
                     recipient = student.profile.email
+
                     template = 'email/success-registration.html'
+
                     context = {
                         'name': student.name,
                         'email': student.profile.email,
-                        'password': student.profile.password
+                        'password': password
                     }
-                    send_email(subject, recipient, template, context)
+
+                    thread = threading.Thread(target=send_email,args=(subject,recipient,template,context))
+
+                    thread.start()
+
+                    # send_email(subject, recipient, template, context)
 
 
                     return redirect('login')
@@ -85,4 +95,4 @@ class StudentRegisterView(View):
                 'student_form' : student_form
             }
             
-        return render(request, 'students/student-register.html', context=data)
+        return render(request, 'students/students-register.html', context=data)

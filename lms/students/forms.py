@@ -5,8 +5,10 @@ from .models import Students, QualificationChoices
 
 from authentication.models import Profile
 
-class ProfileForm(forms.ModelForm):
 
+
+
+class ProfileForm(forms.ModelForm):
 
     class Meta:
 
@@ -55,6 +57,10 @@ class ProfileForm(forms.ModelForm):
         if validated_data.get('password') != validated_data.get('confirm_password'):
 
             self.add_error('confirm_password','password mismatch')
+
+
+
+
 
 class StudentForm(forms.ModelForm):
 
