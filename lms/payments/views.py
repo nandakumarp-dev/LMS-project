@@ -20,8 +20,6 @@ class EnrollConfirmationView(View):
 
         payment,created = Payments.objects.get_or_create(student=Students.objects.get(profile=request.user),course=course,amount= course.offer_fee if course.offer_fee else course.fee)
 
-        
-
-        data = {'course':course}
+        data = {'payment':payment}
 
         return render(request,'payments/enroll-confirmation.html',context=data)
