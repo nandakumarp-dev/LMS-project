@@ -1,5 +1,11 @@
 from django import template
 
+from students.models import Students
+
+from instructors.models import Instructors
+
+
+
 register = template.Library()
 
 @register.simple_tag
@@ -17,3 +23,21 @@ def user_role_checking(request , roles):
         return True
     
     return False
+
+
+@register.simple_tag
+def get_image(request):
+
+    if request.user.is_authenticated:
+
+        if request.user.role == 'Student':
+
+            student = Students.objects.get(profile=request.user)
+
+            return student.image
+        
+        elif request.user.role == 'Instructor':
+
+            instructor = Instructors.objects.get(profile=request.user)
+
+            return instructor.image
