@@ -32,21 +32,26 @@ class EnrollConfirmationView(View):
 
 
 class RazorpayView(View):
-    
-    def get (self, request, *args, **kwargs):
 
-        uuid  = kwargs.get('uuid')
-
+    def get(self, request, *args, **kwargs):
+        uuid = kwargs.get('uuid')
         course = Course.objects.get(uuid=uuid)
 
-        payment = Payments.objects.get(student_profile=request.user, course = course)
+        
+        payment = Payments.objects.get(student__profile=request.user, course=course)
 
         transaction = Transactions.objects.create(payment=payment)
 
-        client = razorpay.Client(auth=(config('RZP_CLIENT_ID'),config('RZP_CLIENT_SECRET')))
-
-        data = { "amount": 500, "currency": "INR", "receipt" : "order_rcptid" }
-
+        client = razorpay.Client(auth=(config('RZP_CLIENT_ID'), config('RZP_CLIENT_SECRET')))
+        data = {"amount": payment.amount*100, "currency": "INR", "receipt": "order_rcptid_11"}
         order = client.order.create(data=data)
 
-        return render(request,'payments/payments-page.html')
+        rzp_order_id = order.get('id')
+
+        transaction.rzp_order_id = rzp_order_id
+
+        transaction.save()
+
+        data = {'client_id': config('RZP_CLIENT_ID'),'rzp_order_id': rzp_order_id,'amount':payment.amount*100}
+
+        return render(request, 'payments/payments-page.html',context=data)
