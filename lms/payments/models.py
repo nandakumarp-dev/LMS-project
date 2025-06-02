@@ -32,3 +32,25 @@ class Payments(BaseModelClass):
         verbose_name = 'Payments'
 
         verbose_name_plural = 'Payments'
+
+
+
+class Transactions(BaseModelClass):
+
+    payment = models.ForeignKey('Payments',on_delete=models.CASCADE)
+
+    rzp_order_id = models.SlugField(null=True,blank=True)
+
+    status = models.CharField(max_length=15,choices=StatusChoices.choices,default=StatusChoices.PENDING)
+
+    transaction_at = models.DateField(null=True,blank=True)
+
+
+    def _str_(self):
+
+        return f'{self.payment.student.name}-{self.course.title}-Transaction'
+    
+    class Meta:
+        verbose_name = 'Transaction'
+
+        verbose_name_plural = 'Transactions'
