@@ -12,6 +12,8 @@ import razorpay
 
 from decouple import config
 
+
+import datetime
 # Create your views here.
 
 
@@ -62,7 +64,7 @@ class PaymentVerifyView(View):
 
     def post(self,request,*args,**kwargs):
 
-        rzp_order_id = request.POST.GET('razorpay_order_id')
+        rzp_order_id = request.POST.get('razorpay_order_id')
 
         rzp_payment_id = request.POST.get('razorpay_payment_id')
 
@@ -70,6 +72,18 @@ class PaymentVerifyView(View):
 
 
         client = razorpay.Client(auth=(config('RZP_CLIENT_ID'), config('RZP_CLIENT_SECRET')))
+
+        transaction = Transactions.objects.get(rzp_order_id = rzp_order_id)
+
+        transaction.status = 'Sucess'
+
+        time_now = datetime.datetime.now()
+
+        transaction.transaction_at = time_now
+
+        transaction.rzp_payment_id = rzp_payment_id
+
+        transaction.rzp_payment_signature = rzp_payment_signature
 
         try:
 
@@ -79,11 +93,24 @@ class PaymentVerifyView(View):
                                                         'razorpay_signature': rzp_payment_signature
             })
 
+            
+            transaction.status = 'Sucess'
+            transaction.save()
+            transaction.payment.status = 'Sucess'
+            transaction.payment.paid_at = time_now
+
+            transaction.payment.save()
+
+
+            return redirect('home')
+
         except:
 
-            pass
+            transaction.status = 'Failed'
 
-        return redirect('home')
+            transaction.save()
+
+            return redirect('razorpay-view',uuid=transaction.payment.course.uuid)
 
 
 

@@ -25,6 +25,8 @@ class CourseCreateForm(forms.ModelForm):
                                                  'placeholder' : 'Enter Course Description',
                                                  'required' : 'required'}),
 
+            'tags': forms.Textarea(),
+
             'fee' : forms.NumberInput(attrs= {'class' : 'form-control',
                                             'placeholder' : 'Enter Course Fee',
                                             'required' : 'required'}),

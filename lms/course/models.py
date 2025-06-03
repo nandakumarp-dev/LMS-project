@@ -60,6 +60,8 @@ class Course(BaseModelClass):
 
     type = models.CharField(max_length=15,choices=Typechoice.choices)
 
+    tags = models.TextField()
+
     level = models.CharField(max_length=25,choices= Levelchoice.choices)
 
     fee = models.DecimalField(max_digits=8, decimal_places=2)
@@ -77,3 +79,5 @@ class Course(BaseModelClass):
         verbose_name_plural = 'Courses'
 
         ordering = ['id']
+
+
