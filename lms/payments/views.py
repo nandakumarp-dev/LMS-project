@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,  redirect
 
 from django.views import View
 
@@ -55,3 +55,45 @@ class RazorpayView(View):
         data = {'client_id': config('RZP_CLIENT_ID'),'rzp_order_id': rzp_order_id,'amount':payment.amount*100}
 
         return render(request, 'payments/payments-page.html',context=data)
+    
+
+
+class PaymentVerifyView(View):
+
+    def post(self,request,*args,**kwargs):
+
+        rzp_order_id = request.POST.GET('razorpay_order_id')
+
+        rzp_payment_id = request.POST.get('razorpay_payment_id')
+
+        rzp_payment_signature = request.POST.get('razorpay_signature')
+
+
+        client = razorpay.Client(auth=(config('RZP_CLIENT_ID'), config('RZP_CLIENT_SECRET')))
+
+        try:
+
+            client.utility.verify_payment_signature({
+                                                        'razorpay_order_id': rzp_order_id,
+                                                        'razorpay_payment_id': rzp_payment_id,
+                                                        'razorpay_signature': rzp_payment_signature
+            })
+
+        except:
+
+            pass
+
+        return redirect('home')
+
+
+
+
+
+
+        
+        
+
+        
+        
+
+        return redirect('home')

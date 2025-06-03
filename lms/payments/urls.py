@@ -8,5 +8,7 @@ urlpatterns = [
 
     path('razorpay-view/<str:uuid>/', views.RazorpayView.as_view(), name='razorpay-view'),
 
-    
+    path('verify-payment/',views.PaymentVerifyView.as_view(),name='verify-payment'),
+
+
     ]
