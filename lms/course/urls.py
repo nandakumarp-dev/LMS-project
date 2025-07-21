@@ -2,9 +2,7 @@ from django.urls import path
 
 from . import views 
 
-urlpatterns = [
-
-    path('courses-list/', views.CoursesListView.as_view(), name='courses_list'),
+urlpatterns = [  
 
     path('courses-detail/<str:uuid>', views.CourseDetailView.as_view(),name='course-detail'),
 
