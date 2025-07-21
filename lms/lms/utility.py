@@ -19,11 +19,11 @@ def send_email(subject,recipient,template,context):
 
 # function to get recommended courses
 
-import pandas as pd
+# import pandas as pd
 
-from sklearn.metrics.pairwise import cosine_similarity
+# from sklearn.metrics.pairwise import cosine_similarity
 
-from sklearn.feature_extraction.text import TfidfVectorizer
+# from sklearn.feature_extraction.text import TfidfVectorizer
 
 from course.models import Course
 
